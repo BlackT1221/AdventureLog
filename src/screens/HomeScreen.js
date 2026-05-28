@@ -1,27 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, FlatList, Image } from 'react-native';
 import { Plus, MapPin } from 'lucide-react-native';
+import { generateAdventures } from '../../seedData';
 
-// Recibimos 'route' para acceder a los parámetros enviados desde la cámara
 const HomeScreen = ({ navigation, route }) => {
-  const [logs, setLogs] = useState([
-    { id: '1', title: 'Caminata Inicial', date: '2026-04-20', uri: null },
-  ]);
+  const [logs, setLogs] = useState(() => generateAdventures(50));
 
-  // ESCUCHADOR DE PARÁMETROS: 
-  // Cada vez que 'route.params' cambie, verificamos si hay una nueva foto
   useEffect(() => {
     if (route.params?.newLog) {
       const { newLog } = route.params;
       
-      // Evitar duplicados (opcional pero recomendado)
       setLogs((prevLogs) => {
         const yaExiste = prevLogs.some(log => log.uri === newLog.uri);
         if (yaExiste) return prevLogs;
 
         return [
           {
-            id: Date.now().toString(), // Generamos un ID único
+            id: Date.now().toString(),
             title: `Nueva Aventura #${prevLogs.length + 1}`,
             date: newLog.date,
             uri: newLog.uri,
@@ -42,9 +37,12 @@ const HomeScreen = ({ navigation, route }) => {
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <View style={styles.card}>
-            {/* Si el item tiene imagen, la mostramos */}
             {item.uri && (
-              <Image source={{ uri: item.uri }} style={styles.cardImage} />
+              <Image 
+                source={{ uri: item.uri }} 
+                style={styles.cardImage} 
+                resizeMode="cover"
+              />
             )}
             <View style={styles.cardContent}>
               <Text style={styles.cardTitle}>{item.title}</Text>
@@ -52,7 +50,9 @@ const HomeScreen = ({ navigation, route }) => {
               {item.coords && (
                 <View style={styles.geoTag}>
                   <MapPin size={12} color="#666" />
-                  <Text style={styles.geoText}>Ubicación capturada</Text>
+                  <Text style={styles.geoText}>
+                    Lat: {item.coords.lat.toFixed(2)}, Lng: {item.coords.lng.toFixed(2)}
+                  </Text>
                 </View>
               )}
             </View>
@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
     borderRadius: 12, 
     marginBottom: 15,
     elevation: 3,
-    overflow: 'hidden' // Importante para que la imagen respete los bordes redondeados
+    overflow: 'hidden'
   },
   cardImage: {
     width: '100%',

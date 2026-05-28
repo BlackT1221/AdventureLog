@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  expo-app:
+    build:
+      context: .
+      network: host
+    container_name: adventure_log
+    command: sh -c "chmod -R 777 node_modules && npm install --legacy-peer-deps && npx expo start --tunnel"
+    ports: 
+      - "8081:8081"
+      - "19000:19000"
+      - "19001:19001"
+      - "19002:19002"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    dns: 
+      - 8.8.8.8
+      - 8.8.4.4
+    environment:
+      - EXPO_DEVTOOLS_LISTEN_ADDRESS=0.0.0.0
+      - NODE_ENV=development
+      - EXPO_DEV_PORT=8081
+      - REACT_NATIVE_PACKAGER_HOSTNAME=172.24.186.15
+    stdin_open: true
+    tty: true
